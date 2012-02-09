@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Crashery</title>
+    <link href="./styles/styles.css" media="screen" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script>
+    <script type="text/javascript" src="http://malsup.github.com/jquery.blockUI.js"></script>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load('visualization', '1', {packages: ['corechart', 'table']});
+    </script>
+    <script type="text/javascript" src="./assets/acracharts.js"></script>
+  </head
+  <body>
+    <div class="wrapper">
+      <header>
+        <a href="http://crashery.com/"><img src="images/crashery_logo.png"></a>
+      </header>
+      <section>
+        <p>Crashery is fun little project. It's a web app that makes sense of your Android crash reports.</p>
+
+<h3>What will it do?</h3>
+
+<p>Crashery will do very little, while still being crazy useful. Just enter your <a href="http://code.google.com/p/acra/" target="_blank">ACRA</a> spreadsheet URL in the textbox below to see for yourself.</p>
+<h3>How do I use it?</h3>
+
+<p>First, make sure your ACRA spreadsheet is shared Publicly in Google Documents. If you don't know what ACRA is, start <a href="http://publicstaticdroidmain.com/2012/01/application-crash-reporting-for-android/" target="_blank">here</a>.</p>
+<p>It's also important that your spreadsheet columns mirror mine, which is ACRA's default. They'll need to be in the <strong>exact-same</strong> order as the sample spreadsheet listed below. </p>
+
+<h3>Credits</h3>
+
+<p>Crashery leverages some of the JavaScript that lives <a href="https://github.com/jberkel/sms-backup-plus/blob/gh-pages/acra-analysis.html" target="_blank">here</a>, written by Jan Berkel.</p>
+<p>Sample Spreadsheet URL:<br/>https://docs.google.com/spreadsheet/ccc?key=0AqnMadBxmj3ZdG02UFF0b2pZd0pPeW5oZ043WmhkcXc</p>
+
+<form id="get-notified">
+  <p>
+    <input type="text" name="spreadsheet" id="spreadsheet" placeholder="Your ACRA Spreadsheet Url">
+    <input type="button" value="Build Beautiful Charts" onclick="buildChartsFromSpreadsheet();">
+    <span id="spinner">
+    </span>
+  </p>
+</form>
+    <br />
+    <div id="errors"/>
+
+    <div>
+      <ul id="toc">
+      </ul>
+    </div>
+
+    <br />
+
+    <div id="reports"/>
+
+      </section>
+      <footer>
+        <p>&copy; 2012 <a href="http://justinschultz.com/" rel="external nofollow" target="_blank">Justin Schultz</a></p>
+        <ul>
+	  <li><a href="https://github.com/jmschultz/Crashery" target="_blank">GitHub</a></li>
+	  <li><a href="http://publicstaticdroidmain.com/" target="_blank">Android Development Blog</a></li>
+          <li><a href="help.html" rel="external">Help!</a></li>
+          <li><a href="http://twitter.com/FunWithJustin" rel="external nofollow" target="_blank">@FunWithJustin</a></li>
+        </ul>
+      </footer>
+    </div>
+  
+
+</body></html>

@@ -1,0 +1,141 @@
+      function show(spreadsheet, analysis, analysisContainer) {
+        var q = new google.visualization.Query(spreadsheet);
+        q.setQuery(analysis['query']);
+
+        q.send(function(response) {
+          var spinner = document.getElementById('spinner'),
+              errors  = document.getElementById('errors');
+
+
+          if (response.isError()) {
+            var i = response.getReasons().length,
+                timeout = false;
+            while (i--) if (response.getReasons()[i] === 'timeout') timeout = true;
+
+            if (timeout) {
+              if (spinner) spinner.innerHTML = "request timed out, retrying...";
+              show(spreadsheet, analysis, analysisContainer);
+            } else {
+              errors.innerHTML = 'Error in query: ' + response.getMessage() +
+                                 ' ' + response.getDetailedMessage();
+            }
+          } else {
+            if (spinner) spinner.style.display = "none";
+
+            var toc = document.getElementById('toc-' + analysis['id']);
+            if (toc) toc.style.display = '';
+	
+	    // HACK: Strip the bulky Exception stack trace for the exception report, otherwise
+	    // charts are very slow to render. 	    
+	    if(analysis['id']=='crash-by-exception') {
+	      for(ii = 0; ii < response.h.G.length; ii++) {
+		  var strippedException = response.h.G[ii].c[0].v.split(".java")[0];
+		  response.h.G[ii].c[0].v = strippedException + ".java)";
+	      }
+	    }
+
+
+            var data = response.getDataTable();
+            var id = analysis['id'];
+
+            var container = document.createElement('div');
+            container.setAttribute('id', id + '-' + 'table');
+            analysisContainer.appendChild(container);
+
+            var table = new google.visualization.Table(container),
+                view  = new google.visualization.DataView(data);
+
+            // reverse columns - most recent version first
+            var columns = [0].concat(view.getViewColumns().slice(1, view.getViewColumns().length).reverse());
+
+            columns.push({
+              calc: function(table, rowNum) {
+                var sum = 0;
+                for (var i=1; i<columns.length-1; i++) sum += table.getValue(rowNum, i);
+                return sum;
+              },
+              type: 'number',
+              label: 'Total'
+            });
+
+            view.setColumns(columns);
+            table.draw(view, {title: analysis['title']});
+
+            var view2 = new google.visualization.DataView(data);
+            view2.setColumns(columns);
+            var columns = view2.getViewColumns();
+            // produce one piechart per pivot point
+            for (var i=1; i < columns.length; i++) {
+              view2.setColumns([0, columns[i]]);
+
+              var version = view2.getColumnLabel(1);
+              if (version && !(version === "")) {
+                var container = document.createElement('div');
+                container.setAttribute("id", id + '-' + version);
+                analysisContainer.appendChild(container);
+
+                var piechart = new google.visualization.PieChart(container);
+                piechart.draw(view2, {legend: 'bottom',
+                                     pieSliceText: 'label',
+                                     height: 500,
+                                     title: analysis['title'] + ': App version ' + version});
+              }
+            }
+          }
+        });
+      }
+
+      function buildChartsFromSpreadsheet() {
+	$.blockUI({ message: '<h3><br/><img src="images/busy.gif" /> Building Beautiful Charts...<br/><br/></h3>' });
+
+        var sheet = document.getElementById('spreadsheet');
+
+        if (sheet) {
+          // N = model, B = version, F = android_version, W = stack_trace
+          var reports = [
+            {
+              id: 'crash-by-model',
+              query: 'SELECT G, COUNT(A) WHERE D != "null" AND G != "google_sdk" GROUP BY G PIVOT D',
+              title: 'Number of crashes by Android Model',
+            },
+            {
+              id: 'crash-by-version',
+              query: 'SELECT J, COUNT(A) WHERE D != "null" GROUP BY J PIVOT D',
+              title: 'Number of crashes by Android OS Version',
+            },
+            {
+              id: 'crash-by-exception',
+              query: 'SELECT P, COUNT (A) WHERE D != "null" AND P != "null" AND P != ""  GROUP BY P PIVOT D LIMIT 25',
+              title: 'Top 25 Exceptions',
+            }
+          ];
+
+          for (var i=0; i<reports.length;i++) {
+            var q = reports[i];
+
+            var li = document.createElement('li');
+            li.setAttribute('id', 'toc-' + q['id']);
+            li.style.display = 'none';
+            document.getElementById('toc').appendChild(li);
+            var a = document.createElement("a");
+            a.href = '#' + q['id'];
+            a.innerHTML = q['title'];
+            li.appendChild(a);
+
+            var analysisContainer = document.createElement('div');
+            analysisContainer.setAttribute('id', q['id']);
+
+            var anchor = document.createElement('a');
+            anchor.setAttribute('name', q['id']);
+            anchor.innerHTML = q['title'];
+            analysisContainer.appendChild(anchor);
+
+            document.getElementById('reports').appendChild(analysisContainer);
+
+            show(sheet.value, q, analysisContainer);
+          }
+        }
+
+	// 4 Second Delay to Unblock the UI
+	setTimeout("$.unblockUI()", 4000);
+    }
