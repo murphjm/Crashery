@@ -10,4 +10,4 @@ First, make sure your ACRA spreadsheet is shared Publicly in Google Documents. I
 It's also important that your spreadsheet columns mirror mine, which is ACRA's default. They'll need to be in the **exact-same order** as the sample spreadsheet on the Crashery website.
 
 ## Credits
-Crashery uses some of the JavaScript from the [SMS Backup Plus] (https://github.com/jberkel/sms-backup-plus/blob/gh-pages/acra-analysis.html) project Jan Berkel.
+Crashery uses some of the JavaScript from the [SMS Backup Plus] (https://github.com/jberkel/sms-backup-plus/blob/gh-pages/acra-analysis.html) project by Jan Berkel.
